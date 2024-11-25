@@ -1,13 +1,18 @@
-FROM amazoncorretto:21.0.4-alpine3.18
+FROM maven:3.9.5-eclipse-temurin-21 as build
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the JAR file into the container
-COPY target/api-0.0.1-SNAPSHOT.jar app.jar
+COPY pom.xml .
+COPY src ./src
 
-# Expose the port that the application will run on
+RUN mvn clean package -DskipTests
+
+FROM eclipse-temurin:21-jdk
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 8080
 
-# Run the JAR file
 ENTRYPOINT ["java", "-jar", "app.jar"]
