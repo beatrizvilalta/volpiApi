@@ -1,16 +1,13 @@
-FROM ubuntu:latest AS build
+FROM amazoncorretto:21.0.4-alpine3.18
 
-RUN apt-get update
-RUN apt-get install openjdk-17-jdk -y
-COPY . .
+# Set the working directory in the container
+WORKDIR /app
 
-RUN apt-get install maven -y
-RUN mvn clean install
+# Copy the JAR file into the container
+COPY target/api-0.0.1-SNAPSHOT.jar app.jar
 
-FROM openjdk:21-slim
-
+# Expose the port that the application will run on
 EXPOSE 8080
 
-COPY --from=build /target/deploy_render-1.0.0.jar app.jar
-
-ENTRYPOINT [ "java", "-jar", "app.jar" ]
+# Run the JAR file
+ENTRYPOINT ["java", "-jar", "app.jar"]
