@@ -3,7 +3,6 @@ import com.volpi.api.dto.auth.AuthResponse;
 import com.volpi.api.dto.auth.LoginRequest;
 import com.volpi.api.dto.auth.RegisterRequest;
 import com.volpi.api.model.User;
-import com.volpi.api.repository.UserRepository;
 import com.volpi.api.service.AuthService;
 import com.volpi.api.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -16,26 +15,28 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
 
-    private final UserRepository userRepository;
-
     private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         User user = authService.register(request);
-        return ResponseEntity.ok(user);
+        return getAuthResponseResponseEntity(user);
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        var user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        var user = authService.findByEmail(request.email());
 
         if (!authService.matchPassword(request.password(), user.getPassword())) {
-            return ResponseEntity.badRequest().body(null);
+            throw new RuntimeException("Invalid password");
         }
 
-        var token = jwtUtil.generateToken(user.getUsername());
-        return ResponseEntity.ok(new AuthResponse(token));
+        return getAuthResponseResponseEntity(user);
+    }
+
+    private ResponseEntity<AuthResponse> getAuthResponseResponseEntity(User user) {
+        var token = jwtUtil.generateToken(user.getEmail());
+        return ResponseEntity.ok(new AuthResponse(token, user.getId(),
+                user.getName(), user.getEmail()));
     }
 }

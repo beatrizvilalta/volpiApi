@@ -18,7 +18,7 @@ public class AuthService {
 
     public User register(RegisterRequest request) {
         var user = new User();
-        user.setUsername(request.username());
+        user.setName(request.name());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setEmail(request.email());
         user.setRole(Role.USER);
@@ -28,6 +28,11 @@ public class AuthService {
 
     public boolean matchPassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).
+                orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
 

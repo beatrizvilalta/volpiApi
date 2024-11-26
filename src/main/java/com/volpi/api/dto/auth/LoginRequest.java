@@ -1,6 +1,6 @@
 package com.volpi.api.dto.auth;
 
 public record LoginRequest(
-        String username,
+        String email,
         String password
 ) {}
