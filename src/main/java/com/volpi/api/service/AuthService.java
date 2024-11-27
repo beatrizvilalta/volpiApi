@@ -17,6 +17,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public User register(RegisterRequest request) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new RuntimeException("User already exists");
+        }
+
         var user = new User();
         user.setName(request.name());
         user.setPassword(passwordEncoder.encode(request.password()));
