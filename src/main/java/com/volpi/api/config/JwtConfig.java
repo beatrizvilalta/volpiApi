@@ -14,7 +14,7 @@ import java.util.Date;
 @Configuration
 public class JwtConfig {
 
-    @Value("${jwt.secret}")
+    @Value("${jwtKey.secretKey}")
     private static String SECRET;
     private static final long EXPIRATION_TIME = 86400000; // 1 day
 
