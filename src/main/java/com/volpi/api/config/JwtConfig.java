@@ -2,6 +2,7 @@ package com.volpi.api.config;
 
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -15,7 +16,7 @@ import java.util.Date;
 public class JwtConfig {
 
     @Value("${jwtKey.secretKey}")
-    private static String SECRET;
+    private String SECRET;
     private static final long EXPIRATION_TIME = 86400000; // 1 day
 
     public String generateToken(String email) {
@@ -27,7 +28,8 @@ public class JwtConfig {
                 .compact();
     }
 
-    public static JwtDecoder jwtDecoder() {
+    @Bean
+    public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withSecretKey(new SecretKeySpec(SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256")).build();
     }
 }

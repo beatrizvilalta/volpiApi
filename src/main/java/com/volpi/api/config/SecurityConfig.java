@@ -8,9 +8,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static com.volpi.api.config.JwtConfig.jwtDecoder;
 
 @Configuration
 @RequiredArgsConstructor
@@ -33,7 +33,7 @@ public class SecurityConfig {
                 )
                 .httpBasic(Customizer.withDefaults())
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.decoder(jwtDecoder())) // JWT token configuration
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtAuthenticationConverter())) // JWT token configuration
                 );
         return http.build();
     }
