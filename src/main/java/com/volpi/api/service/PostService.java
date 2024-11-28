@@ -23,12 +23,12 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public void deletePost(String id) {
+    public void deletePost(Long id) {
         Post post = getPost(id);
         postRepository.delete(post);
     }
 
-    public Post getPost(String id) {
+    public Post getPost(Long id) {
         return postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
     }
 

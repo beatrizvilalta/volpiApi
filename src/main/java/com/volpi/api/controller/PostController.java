@@ -21,19 +21,19 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Post> editPost(@PathVariable String id, @RequestBody Post post) {
+    public ResponseEntity<Post> editPost(@PathVariable Long id, @RequestBody Post post) {
         post.setId(id);
         return ResponseEntity.ok(postService.editPost(post));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable String id) {
+    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Post> getPost(@PathVariable String id) {
+    public ResponseEntity<Post> getPost(@PathVariable Long id) {
         return ResponseEntity.ok(postService.getPost(id));
     }
 
