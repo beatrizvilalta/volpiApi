@@ -35,8 +35,17 @@ public class InteractionService {
                 .type(type)
                 .user(user)
                 .post(post)
+                .isInteractionEnabled(true)
                 .build();
         return interactionRepository.save(interaction);
+    }
+
+    public void deleteInteraction(Long userId, Long postId, InteractionType type) {
+        Interaction interaction = interactionRepository.findByUserIdAndPostIdAndType(userId, postId, type)
+                .orElseThrow(() -> new IllegalArgumentException("Interaction not found"));
+
+        interaction.setInteractionEnabled(false);
+        interactionRepository.save(interaction);
     }
 
     public InteractionDetails  getInteractionDetails(Long userId, Long postId) {

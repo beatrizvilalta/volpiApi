@@ -31,6 +31,8 @@ public class Interaction {
     @Column(name = "type", nullable = false)
     private InteractionType type;
 
+    private boolean isInteractionEnabled;
+
     @Column(name = "created_at")
     private java.sql.Timestamp createdAt;
 
