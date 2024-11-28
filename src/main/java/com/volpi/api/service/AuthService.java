@@ -1,7 +1,7 @@
 package com.volpi.api.service;
 
 import com.volpi.api.dto.auth.RegisterRequest;
-import com.volpi.api.model.Role;
+import com.volpi.api.model.enums.Role;
 import com.volpi.api.model.User;
 import com.volpi.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,6 @@
 package com.volpi.api.model;
 
+import com.volpi.api.model.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
