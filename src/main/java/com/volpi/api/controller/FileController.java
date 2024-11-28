@@ -31,12 +31,12 @@ public class FileController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FileResponse> getFileById (@PathVariable Long id) {
+    public ResponseEntity<FileResponse> getFileById(@PathVariable Long id) {
         return ResponseEntity.ok(fileService.getFileResponse(id));
     }
 
     @GetMapping("/{id}/download")
-    public ResponseEntity<FileUrlResponse> downloadFileById (@PathVariable Long id) {
+    public ResponseEntity<FileUrlResponse> downloadFileById(@PathVariable Long id) {
         return ResponseEntity.ok(fileService.downloadFile(id));
     }
 
