@@ -12,10 +12,11 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:5173/**");
-        config.addAllowedOrigin("https://volpi-beta.netlify.app/**");
+        config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("https://volpi-beta.netlify.app");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
