@@ -2,6 +2,7 @@ package com.volpi.api.service;
 
 import com.volpi.api.dto.file.FileRequest;
 import com.volpi.api.dto.file.FileResponse;
+import com.volpi.api.dto.file.FileUrlResponse;
 import com.volpi.api.dto.file.PreviewImageResponse;
 import com.volpi.api.model.File;
 import com.volpi.api.repository.FileRepository;
@@ -51,15 +52,9 @@ public class FileService {
         return new FileResponse(file.getId(), file.getFileName(), file.getPreviewImageName(), file.getFileUrl(), file.getPreviewImageUrl());
     }
 
-    public byte[] downloadFile(long id) {
+    public FileUrlResponse downloadFile(long id) {
         File file = getFile(id);
-        String fileName = file.getFileName();
-        try {
-            InputStream fileStream = s3Service.downloadFile(fileName);
-            return fileStream.readAllBytes();
-        } catch (Exception e) {
-            throw new InternalError("File download failed: " + e.getMessage(), e);
-        }
+        return new FileUrlResponse(file.getFileUrl());
     }
 
     public PreviewImageResponse getPreviewImageUrlByFileId(Long id) {

@@ -2,6 +2,7 @@ package com.volpi.api.controller;
 
 import com.volpi.api.dto.file.FileRequest;
 import com.volpi.api.dto.file.FileResponse;
+import com.volpi.api.dto.file.FileUrlResponse;
 import com.volpi.api.dto.file.PreviewImageResponse;
 import com.volpi.api.service.FileService;
 import com.volpi.api.service.S3Service;
@@ -35,8 +36,8 @@ public class FileController {
     }
 
     @GetMapping("/{id}/download")
-    public byte[] downloadFileById (@PathVariable Long id) {
-        return fileService.downloadFile(id);
+    public ResponseEntity<FileUrlResponse> downloadFileById (@PathVariable Long id) {
+        return ResponseEntity.ok(fileService.downloadFile(id));
     }
 
     @GetMapping("/{id}/previewImage")
@@ -66,7 +67,5 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-
-
 }
 
