@@ -46,7 +46,7 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadFileToS3(@RequestParam("file") MultipartFile file) {
         try (InputStream fileStream = file.getInputStream()) {
             s3Service.uploadFile(file.getOriginalFilename(), fileStream);
             return ResponseEntity.ok("File uploaded successfully");
@@ -56,7 +56,7 @@ public class FileController {
     }
 
     @GetMapping("/download/{fileName}")
-    public ResponseEntity<byte[]> downloadFile(@PathVariable String fileName) {
+    public ResponseEntity<byte[]> downloadFileToS3(@PathVariable String fileName) {
         try (InputStream fileStream = s3Service.downloadFile(fileName)) {
             byte[] fileContent = fileStream.readAllBytes();
             return ResponseEntity.ok()
