@@ -54,4 +54,14 @@ public class FileService {
         }
     }
 
+    public byte[] getPreviewImageByFileId(Long id) {
+        File file = getFile(id);
+        String previewImageName = file.getPreviewImageName();
+        try {
+            InputStream previewImageStream = s3Service.downloadFile(previewImageName);
+            return previewImageStream.readAllBytes();
+        } catch (Exception e) {
+            throw new InternalError("Preview image download failed: " + e.getMessage(), e);
+        }
+    }
 }

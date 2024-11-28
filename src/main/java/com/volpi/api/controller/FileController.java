@@ -33,6 +33,11 @@ public class FileController {
         return fileService.downloadFile(id);
     }
 
+    @GetMapping("/{id}/previewImage")
+    public byte[] getPreviewImageByFileId(@PathVariable Long id) {
+        return fileService.getPreviewImageByFileId(id);
+    }
+
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         try (InputStream fileStream = file.getInputStream()) {
