@@ -2,6 +2,7 @@ package com.volpi.api.controller;
 
 import com.volpi.api.dto.file.FileRequest;
 import com.volpi.api.dto.file.FileResponse;
+import com.volpi.api.dto.file.PreviewImageResponse;
 import com.volpi.api.service.FileService;
 import com.volpi.api.service.S3Service;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +30,18 @@ public class FileController {
     }
 
     @GetMapping("/{id}")
+    public ResponseEntity<FileResponse> getFileById (@PathVariable Long id) {
+        return ResponseEntity.ok(fileService.getFileResponse(id));
+    }
+
+    @GetMapping("/{id}/download")
     public byte[] downloadFileById (@PathVariable Long id) {
         return fileService.downloadFile(id);
     }
 
     @GetMapping("/{id}/previewImage")
-    public byte[] getPreviewImageByFileId(@PathVariable Long id) {
-        return fileService.getPreviewImageByFileId(id);
+    public ResponseEntity<PreviewImageResponse> getPreviewImageByFileId(@PathVariable Long id) {
+        return ResponseEntity.ok().body(fileService.getPreviewImageUrlByFileId(id));
     }
 
     @PostMapping("/upload")

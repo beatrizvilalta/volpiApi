@@ -2,6 +2,7 @@ package com.volpi.api.service;
 
 import com.volpi.api.dto.file.FileRequest;
 import com.volpi.api.dto.file.FileResponse;
+import com.volpi.api.dto.file.PreviewImageResponse;
 import com.volpi.api.model.File;
 import com.volpi.api.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,8 @@ public class FileService {
            File file = File.builder()
                    .fileName(fileRequest.file().getOriginalFilename())
                    .previewImageName(fileRequest.previewImage().getOriginalFilename())
+                   .fileUrl(baseUrl + fileName)
+                   .previewImageUrl(baseUrl + previewImageName)
                    .build();
            fileRepository.save(file);
            return new FileResponse(file.getId(), fileName, previewImageName, baseUrl + fileName, baseUrl + previewImageName);
@@ -43,6 +46,11 @@ public class FileService {
         return fileRepository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
     }
 
+    public FileResponse getFileResponse(long id) {
+        File file = getFile(id);
+        return new FileResponse(file.getId(), file.getFileName(), file.getPreviewImageName(), file.getFileUrl(), file.getPreviewImageUrl());
+    }
+
     public byte[] downloadFile(long id) {
         File file = getFile(id);
         String fileName = file.getFileName();
@@ -54,14 +62,8 @@ public class FileService {
         }
     }
 
-    public byte[] getPreviewImageByFileId(Long id) {
+    public PreviewImageResponse getPreviewImageUrlByFileId(Long id) {
         File file = getFile(id);
-        String previewImageName = file.getPreviewImageName();
-        try {
-            InputStream previewImageStream = s3Service.downloadFile(previewImageName);
-            return previewImageStream.readAllBytes();
-        } catch (Exception e) {
-            throw new InternalError("Preview image download failed: " + e.getMessage(), e);
-        }
+        return new PreviewImageResponse(file.getPreviewImageName(), file.getPreviewImageUrl());
     }
 }

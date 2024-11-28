@@ -19,6 +19,10 @@ public class File {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String previewImageUrl;
+
+    private String fileUrl;
+
     private String previewImageName;
 
     private String fileName;
