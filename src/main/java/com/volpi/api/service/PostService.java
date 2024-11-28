@@ -75,7 +75,7 @@ public class PostService {
     public List<PostResponse> getAllPosts() {
         return postRepository.findAll()
                 .stream()
-                .map(post -> getPostResponse(post.getId(), post))
+                .map(this::getPostResponse)
                 .toList();
     }
 
