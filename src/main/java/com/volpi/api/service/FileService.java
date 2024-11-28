@@ -19,28 +19,33 @@ public class FileService {
     private final S3Service s3Service;
     private final String baseUrl = "https://volpi-files.s3.us-east-1.amazonaws.com/";
 
-    public FileResponse createFile(FileRequest fileRequest) {
-       try {
-           InputStream fileStream = fileRequest.file().getInputStream();
-           InputStream previewImageStream = fileRequest.previewImage().getInputStream();
-           String fileName = fileRequest.file().getOriginalFilename();
-           String previewImageName = fileRequest.previewImage().getOriginalFilename();
+    public File createFile(FileRequest fileRequest) {
+        try {
+            InputStream fileStream = fileRequest.file().getInputStream();
+            InputStream previewImageStream = fileRequest.previewImage().getInputStream();
+            String fileName = fileRequest.file().getOriginalFilename();
+            String previewImageName = fileRequest.previewImage().getOriginalFilename();
 
-           s3Service.uploadFile(fileName, fileStream);
-           s3Service.uploadFile(previewImageName, previewImageStream);
+            s3Service.uploadFile(fileName, fileStream);
+            s3Service.uploadFile(previewImageName, previewImageStream);
 
-           File file = File.builder()
-                   .fileName(fileRequest.file().getOriginalFilename())
-                   .previewImageName(fileRequest.previewImage().getOriginalFilename())
-                   .fileUrl(baseUrl + fileName)
-                   .previewImageUrl(baseUrl + previewImageName)
-                   .build();
-           fileRepository.save(file);
-           return new FileResponse(file.getId(), fileName, previewImageName, baseUrl + fileName, baseUrl + previewImageName);
+            File file = File.builder()
+                    .fileName(fileRequest.file().getOriginalFilename())
+                    .previewImageName(fileRequest.previewImage().getOriginalFilename())
+                    .fileUrl(baseUrl + fileName)
+                    .previewImageUrl(baseUrl + previewImageName)
+                    .build();
+            fileRepository.save(file);
+            return file;
+        } catch (Exception e) {
+            throw new InternalError("File creation failed: " + e.getMessage(), e);
+        }
+    }
 
-       } catch (Exception e) {
-           throw new InternalError("File creation failed: " + e.getMessage(), e);
-       }
+    public FileResponse createFileRequest(FileRequest fileRequest) {
+        File file = createFile(fileRequest);
+        return new FileResponse(file.getId(), file.getFileName(), file.getPreviewImageName(),
+                baseUrl + file.getFileName(), baseUrl + file.getPreviewImageName());
     }
 
     private File getFile(long id) {
@@ -60,5 +65,27 @@ public class FileService {
     public PreviewImageResponse getPreviewImageUrlByFileId(Long id) {
         File file = getFile(id);
         return new PreviewImageResponse(file.getPreviewImageName(), file.getPreviewImageUrl());
+    }
+
+    public File updateFile(long id, FileRequest fileRequest) {
+        File file = getFile(id);
+        try {
+            InputStream fileStream = fileRequest.file().getInputStream();
+            InputStream previewImageStream = fileRequest.previewImage().getInputStream();
+            String fileName = fileRequest.file().getOriginalFilename();
+            String previewImageName = fileRequest.previewImage().getOriginalFilename();
+
+            s3Service.uploadFile(fileName, fileStream);
+            s3Service.uploadFile(previewImageName, previewImageStream);
+
+            file.setFileName(fileName);
+            file.setPreviewImageName(previewImageName);
+            file.setFileUrl(baseUrl + fileName);
+            file.setPreviewImageUrl(baseUrl + previewImageName);
+            fileRepository.save(file);
+            return file;
+        } catch (Exception e) {
+            throw new InternalError("File update failed: " + e.getMessage(), e);
+        }
     }
 }

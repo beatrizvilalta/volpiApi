@@ -27,7 +27,7 @@ public class FileController {
 
     @PostMapping()
     public ResponseEntity<FileResponse> createFile(FileRequest fileRequest) {
-       return ResponseEntity.ok(fileService.createFile(fileRequest));
+       return ResponseEntity.ok(fileService.createFileRequest(fileRequest));
     }
 
     @GetMapping("/{id}")

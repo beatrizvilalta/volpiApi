@@ -1,5 +1,7 @@
 package com.volpi.api.controller;
 
+import com.volpi.api.dto.PostRequest;
+import com.volpi.api.dto.PostResponse;
 import com.volpi.api.model.Post;
 import com.volpi.api.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +18,13 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody Post post) {
+    public ResponseEntity<Post> createPost(@RequestBody PostRequest post) {
         return ResponseEntity.ok(postService.createPost(post));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Post> editPost(@PathVariable Long id, @RequestBody Post post) {
-        post.setId(id);
-        return ResponseEntity.ok(postService.editPost(post));
+    public ResponseEntity<Post> editPost(@PathVariable Long id, @RequestBody PostRequest post) {
+        return ResponseEntity.ok(postService.editPost(post, id));
     }
 
     @DeleteMapping("/{id}")
@@ -33,12 +34,13 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Post> getPost(@PathVariable Long id) {
-        return ResponseEntity.ok(postService.getPost(id));
+    public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {
+        Post post = postService.getPost(id);
+        return ResponseEntity.ok(postService.getPostResponse(post));
     }
 
     @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts() {
+    public ResponseEntity<List<PostResponse>> getAllPosts() {
         return ResponseEntity.ok(postService.getAllPosts());
     }
 

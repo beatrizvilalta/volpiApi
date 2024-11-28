@@ -1,11 +1,16 @@
 package com.volpi.api.service;
 
+import com.volpi.api.dto.InteractionDetails;
+import com.volpi.api.dto.PostRequest;
+import com.volpi.api.dto.PostResponse;
+import com.volpi.api.dto.file.FileRequest;
+import com.volpi.api.model.File;
 import com.volpi.api.model.Post;
+import com.volpi.api.model.User;
 import com.volpi.api.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -13,13 +18,28 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final FileService fileService;
+    private final AuthService authService;
+    private final InteractionService interactionService;
 
-    public Post createPost(Post post) {
+    public Post createPost(PostRequest postRequest) {
+        File file = fileService.createFile(new FileRequest(postRequest.file(), postRequest.previewImage()));
+        User user = authService.findById(postRequest.userId());
+        Post post = new Post();
+        post.postFromPostRequest(postRequest);
+        post.setFile(file);
+        post.setUser(user);
+
         return postRepository.save(post);
     }
 
-    public Post editPost(Post post) {
+    public Post editPost(PostRequest postRequest, Long id) {
+        Post post = getPost(id);
+        post.postFromPostRequest(postRequest);
+        File file = fileService.updateFile(post.getFile().getId(), new FileRequest(postRequest.file(), postRequest.previewImage()));
+        post.setFile(file);
         post.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+
         return postRepository.save(post);
     }
 
@@ -32,8 +52,31 @@ public class PostService {
         return postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    public PostResponse getPostResponse(Post post) {
+        InteractionDetails interactionDetails =  interactionService.getInteractionDetails(post.getUser().getId(),
+                post.getId());
+
+        return new PostResponse(post.getId(),
+                post.getUser().getId(),
+                post.getUser().getName(),
+                post.getCreatedAt(),
+                post.getTitle(),
+                post.getDescription(),
+                post.getSubject().name(),
+                post.getSchoolLevel().name(),
+                post.getGrade().name(),
+                post.getFile().getPreviewImageUrl(),
+                interactionDetails.isSupported(),
+                interactionDetails.isSaved(),
+                interactionDetails.supportCount(),
+                interactionDetails.saveCount());
+    }
+
+    public List<PostResponse> getAllPosts() {
+        return postRepository.findAll()
+                .stream()
+                .map(post -> getPostResponse(post.getId(), post))
+                .toList();
     }
 
     public List<Post> searchPosts(String query) {

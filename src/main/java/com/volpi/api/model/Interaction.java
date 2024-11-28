@@ -1,45 +1,35 @@
 package com.volpi.api.model;
 
-import com.volpi.api.model.enums.Role;
+import com.volpi.api.model.enums.InteractionType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
-@Table(name= "user_auth")
-@Data
+@Table(name = "interaction")
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+@Builder
+@Data
+public class Interaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @NotBlank
-    private String password;
-
-    @Email
-    @NotBlank
-    private String email;
+    @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
-
-    @OneToMany(mappedBy = "user")
-    private List<Post> postList;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Interaction> interactions = new ArrayList<>();
+    @Column(name = "type", nullable = false)
+    private InteractionType type;
 
     @Column(name = "created_at")
     private java.sql.Timestamp createdAt;
@@ -53,4 +43,3 @@ public class User {
         updatedAt = new java.sql.Timestamp(System.currentTimeMillis());
     }
 }
-
