@@ -83,7 +83,3 @@ Here's a basic overview of the key endpoints:
 For a full list of endpoints, see the [API Documentation](https://volpi-api-ec9e2c714aa7.herokuapp.com/swagger-ui/index.html).
 
 ---
-
-## Contributing
-
-If you'd like to contribute, please fork the repository and use a feature branch. Pull requests are warmly welcome.
