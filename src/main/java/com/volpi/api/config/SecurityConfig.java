@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/error/**")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/post", "/post/**").permitAll()
                         .anyRequest()
                         .authenticated() // All other endpoints require authentication
                 )
