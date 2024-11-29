@@ -33,14 +33,14 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Post editPost(PostRequest postRequest, Long id) {
+    public PostResponse editPost(PostRequest postRequest, Long id) {
         Post post = getPost(id);
         post.postFromPostRequest(postRequest);
-        File file = fileService.updateFile(post.getFile().getId(), new FileRequest(postRequest.file(), postRequest.previewImage()));
+        File file = fileService.updateFile(post.getFile().getId(), new FileRequest(postRequest.previewImage(), postRequest.file()));
         post.setFile(file);
         post.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
-        return postRepository.save(post);
+        return getPostResponse(postRepository.save(post));
     }
 
     public void deletePost(Long id) {
@@ -53,7 +53,7 @@ public class PostService {
     }
 
     public PostResponse getPostResponse(Post post) {
-        InteractionDetails interactionDetails =  interactionService.getInteractionDetails(post.getUser().getId(),
+        InteractionDetails interactionDetailsInterface =  interactionService.getInteractionDetails(post.getUser().getId(),
                 post.getId());
 
         return new PostResponse(post.getId(),
@@ -66,21 +66,38 @@ public class PostService {
                 post.getSchoolLevel().name(),
                 post.getGrade().name(),
                 post.getFile().getPreviewImageUrl(),
-                interactionDetails.isSupported(),
-                interactionDetails.isSaved(),
-                interactionDetails.supportCount(),
-                interactionDetails.saveCount());
+                interactionDetailsInterface.isSupported(),
+                interactionDetailsInterface.isSaved(),
+                interactionDetailsInterface.supportCount(),
+                interactionDetailsInterface.saveCount());
     }
 
     public List<PostResponse> getAllPosts() {
-        return postRepository.findAll()
+        return postRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
                 .map(this::getPostResponse)
                 .toList();
     }
 
-    public List<Post> searchPosts(String query) {
-        return postRepository.findByTitleContaining(query);
+    public List<PostResponse> searchPosts(String query) {
+        return postRepository.findByTitleContaining(query)
+                .stream()
+                .map(this::getPostResponse)
+                .toList();
+    }
+
+    public List<PostResponse> getPostsByUser(Long userId) {
+        return postRepository.findAllByUserId(userId)
+                .stream()
+                .map(this::getPostResponse)
+                .toList();
+    }
+
+    public List<PostResponse> getSavedPosts(Long userId) {
+        return interactionService.getSavedPosts(userId)
+                .stream()
+                .map(this::getPostResponse)
+                .toList();
     }
 
 }

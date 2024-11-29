@@ -1,8 +1,8 @@
 package com.volpi.api.dto;
 
 public record InteractionDetails(
-        boolean isSaved,
-        boolean isSupported,
+        Boolean isSaved,
+        Boolean isSupported,
         int saveCount,
         int supportCount
 ) {}

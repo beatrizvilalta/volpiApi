@@ -4,7 +4,9 @@ import com.volpi.api.dto.PostRequest;
 import com.volpi.api.dto.PostResponse;
 import com.volpi.api.model.Post;
 import com.volpi.api.service.PostService;
+import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +19,15 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody PostRequest post) {
-        return ResponseEntity.ok(postService.createPost(post));
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostResponse> createPost(@ModelAttribute PostRequest postRequest) {
+        Post post = postService.createPost(postRequest);
+
+        return ResponseEntity.ok(postService.getPostResponse(post));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Post> editPost(@PathVariable Long id, @RequestBody PostRequest post) {
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostResponse> editPost(@PathVariable Long id, @ModelAttribute PostRequest post) {
         return ResponseEntity.ok(postService.editPost(post, id));
     }
 
@@ -45,7 +49,17 @@ public class PostController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Post>> searchPosts(@RequestParam String query) {
+    public ResponseEntity<List<PostResponse>> searchPosts(@RequestParam String query) {
         return ResponseEntity.ok(postService.searchPosts(query));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PostResponse>> getPostsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(postService.getPostsByUser(userId));
+    }
+
+    @GetMapping("/saved/{userId}")
+    public ResponseEntity<List<PostResponse>> getSavedPosts(@PathVariable Long userId) {
+        return ResponseEntity.ok(postService.getSavedPosts(userId));
     }
 }

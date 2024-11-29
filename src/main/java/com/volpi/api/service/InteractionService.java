@@ -1,6 +1,7 @@
 package com.volpi.api.service;
 
 import com.volpi.api.dto.InteractionDetails;
+import com.volpi.api.dto.InteractionDetailsInterface;
 import com.volpi.api.model.Interaction;
 import com.volpi.api.model.Post;
 import com.volpi.api.model.User;
@@ -10,6 +11,8 @@ import com.volpi.api.repository.PostRepository;
 import com.volpi.api.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -25,7 +28,7 @@ public class InteractionService {
         this.interactionRepository = interactionRepository;
     }
 
-    public Interaction createInteraction(Long userId, Long postId, InteractionType type) {
+    public void createInteraction(Long userId, Long postId, InteractionType type) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         Post post = postRepository.findById(postId)
@@ -37,7 +40,7 @@ public class InteractionService {
                 .post(post)
                 .isInteractionEnabled(true)
                 .build();
-        return interactionRepository.save(interaction);
+        interactionRepository.save(interaction);
     }
 
     public void deleteInteraction(Long userId, Long postId, InteractionType type) {
@@ -48,14 +51,13 @@ public class InteractionService {
         interactionRepository.save(interaction);
     }
 
-    public InteractionDetails  getInteractionDetails(Long userId, Long postId) {
-        Object[] result = interactionRepository.findPostInteractionDetails(userId, postId);
-        boolean isSaved = (boolean) result[0];
-        boolean isSupported = (boolean) result[1];
-        int saveCount = (int) result[2];
-        int supportCount = (int) result[3];
+    public InteractionDetails getInteractionDetails(Long userId, Long postId) {
+        InteractionDetailsInterface result = interactionRepository.findPostInteractionDetails(userId, postId);
+        return new InteractionDetails(result.getIsSaved(), result.getIsSupported(), result.getSaveCount(), result.getSupportCount());
+    }
 
-        return new InteractionDetails(isSaved, isSupported, saveCount, supportCount);
+    public List<Post> getSavedPosts(Long userId) {
+        return interactionRepository.findSavedPostsByUserId(userId);
     }
 }
 

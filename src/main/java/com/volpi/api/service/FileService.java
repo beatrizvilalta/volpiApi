@@ -21,25 +21,33 @@ public class FileService {
 
     public File createFile(FileRequest fileRequest) {
         try {
-            InputStream fileStream = fileRequest.file().getInputStream();
-            InputStream previewImageStream = fileRequest.previewImage().getInputStream();
-            String fileName = fileRequest.file().getOriginalFilename();
-            String previewImageName = fileRequest.previewImage().getOriginalFilename();
-
-            s3Service.uploadFile(fileName, fileStream);
-            s3Service.uploadFile(previewImageName, previewImageStream);
+            FileRecord result = createFileRecord(fileRequest);
 
             File file = File.builder()
                     .fileName(fileRequest.file().getOriginalFilename())
                     .previewImageName(fileRequest.previewImage().getOriginalFilename())
-                    .fileUrl(baseUrl + fileName)
-                    .previewImageUrl(baseUrl + previewImageName)
+                    .fileUrl(baseUrl + result.fileName())
+                    .previewImageUrl(baseUrl + result.previewImageName())
                     .build();
             fileRepository.save(file);
             return file;
         } catch (Exception e) {
             throw new InternalError("File creation failed: " + e.getMessage(), e);
         }
+    }
+
+    private FileRecord createFileRecord(FileRequest fileRequest) throws Exception {
+        InputStream fileStream = fileRequest.file().getInputStream();
+        InputStream previewImageStream = fileRequest.previewImage().getInputStream();
+        String fileName = fileRequest.file().getOriginalFilename();
+        String previewImageName = fileRequest.previewImage().getOriginalFilename();
+
+        s3Service.uploadFile(fileName, fileStream);
+        s3Service.uploadFile(previewImageName, previewImageStream);
+        return new FileRecord(fileName, previewImageName);
+    }
+
+    private record FileRecord(String fileName, String previewImageName) {
     }
 
     public FileResponse createFileRequest(FileRequest fileRequest) {
@@ -70,18 +78,12 @@ public class FileService {
     public File updateFile(long id, FileRequest fileRequest) {
         File file = getFile(id);
         try {
-            InputStream fileStream = fileRequest.file().getInputStream();
-            InputStream previewImageStream = fileRequest.previewImage().getInputStream();
-            String fileName = fileRequest.file().getOriginalFilename();
-            String previewImageName = fileRequest.previewImage().getOriginalFilename();
+            FileRecord fileRecord = createFileRecord(fileRequest);
 
-            s3Service.uploadFile(fileName, fileStream);
-            s3Service.uploadFile(previewImageName, previewImageStream);
-
-            file.setFileName(fileName);
-            file.setPreviewImageName(previewImageName);
-            file.setFileUrl(baseUrl + fileName);
-            file.setPreviewImageUrl(baseUrl + previewImageName);
+            file.setFileName(fileRecord.fileName);
+            file.setPreviewImageName(fileRecord.previewImageName);
+            file.setFileUrl(baseUrl + fileRecord.fileName);
+            file.setPreviewImageUrl(baseUrl + fileRecord.previewImageName);
             fileRepository.save(file);
             return file;
         } catch (Exception e) {
