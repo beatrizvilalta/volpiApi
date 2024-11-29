@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
 
 
 @Configuration
@@ -25,12 +26,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable) // Disable CSRF for APIs
+        http.csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.addAllowedOrigin("http://localhost:5173");
+                    config.addAllowedOrigin("https://volpi-beta.netlify.app");
+                    config.addAllowedHeader("*");
+                    config.addAllowedMethod("*");
+                    config.setAllowCredentials(true);
+                    return config;
+                }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/error/**")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/post", "/post/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
                         .anyRequest()
                         .authenticated() // All other endpoints require authentication
                 )
