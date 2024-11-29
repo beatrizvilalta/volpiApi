@@ -9,24 +9,21 @@ import com.volpi.api.model.enums.InteractionType;
 import com.volpi.api.repository.InteractionRepository;
 import com.volpi.api.repository.PostRepository;
 import com.volpi.api.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class InteractionService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final InteractionRepository interactionRepository;
-
-    public InteractionService(UserRepository userRepository, PostRepository postRepository, InteractionRepository interactionRepository) {
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
-        this.interactionRepository = interactionRepository;
-    }
 
     public void createInteraction(Long userId, Long postId, InteractionType type) {
         User user = userRepository.findById(userId)
@@ -34,21 +31,30 @@ public class InteractionService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
+        Optional<Interaction> existingInteraction = interactionRepository.findByUserIdAndPostIdAndType(userId, postId, type);
+
+        //if interaction already exist we don't need to save again
+        if (existingInteraction.isPresent()) {
+            return;
+        }
+
         Interaction interaction = Interaction.builder()
                 .type(type)
                 .user(user)
                 .post(post)
-                .isInteractionEnabled(true)
                 .build();
         interactionRepository.save(interaction);
     }
 
     public void deleteInteraction(Long userId, Long postId, InteractionType type) {
-        Interaction interaction = interactionRepository.findByUserIdAndPostIdAndType(userId, postId, type)
-                .orElseThrow(() -> new IllegalArgumentException("Interaction not found"));
+        Interaction interaction = findByUserAndPostAndType(userId, postId, type);
 
-        interaction.setInteractionEnabled(false);
-        interactionRepository.save(interaction);
+        interactionRepository.delete(interaction);
+    }
+
+    private Interaction findByUserAndPostAndType(Long userId, Long postId, InteractionType type) {
+        return interactionRepository.findByUserIdAndPostIdAndType(userId, postId, type)
+                .orElseThrow(() -> new IllegalArgumentException("Interaction not found"));
     }
 
     public InteractionDetails getInteractionDetails(Long userId, Long postId) {

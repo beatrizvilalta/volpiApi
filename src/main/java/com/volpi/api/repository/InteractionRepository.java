@@ -18,17 +18,17 @@ public interface InteractionRepository extends JpaRepository<Interaction, Long>{
     @Query("""
             SELECT
                 CASE
-                    WHEN COALESCE(SUM(CASE WHEN i.type = 'SAVED' AND i.isInteractionEnabled = true AND i.user.id = :userId THEN 1 ELSE 0 END), 0) > 0
+                    WHEN COALESCE(SUM(CASE WHEN i.type = 'SAVE' AND i.user.id = :userId THEN 1 ELSE 0 END), 0) > 0
                     THEN TRUE
                     ELSE FALSE
                 END AS isSaved,
                 CASE
-                    WHEN COALESCE(SUM(CASE WHEN i.type = 'SUPPORTED' AND i.isInteractionEnabled = true AND i.user.id = :userId THEN 1 ELSE 0 END), 0) > 0
+                    WHEN COALESCE(SUM(CASE WHEN i.type = 'SUPPORT' AND i.user.id = :userId THEN 1 ELSE 0 END), 0) > 0
                     THEN TRUE
                     ELSE FALSE
                 END AS isSupported,
-                COALESCE(SUM(CASE WHEN i.type = 'SAVED' AND i.isInteractionEnabled = true THEN 1 ELSE 0 END), 0) AS saveCount,
-                COALESCE(SUM(CASE WHEN i.type = 'SUPPORTED' AND i.isInteractionEnabled = true THEN 1 ELSE 0 END), 0) AS supportCount
+                COALESCE(SUM(CASE WHEN i.type = 'SAVE' THEN 1 ELSE 0 END), 0) AS saveCount,
+                COALESCE(SUM(CASE WHEN i.type = 'SUPPORT' THEN 1 ELSE 0 END), 0) AS supportCount
             FROM Interaction i
             WHERE i.post.id = :postId
        """)
@@ -39,7 +39,9 @@ public interface InteractionRepository extends JpaRepository<Interaction, Long>{
     @Query("""
         SELECT i.post 
         FROM Interaction i 
-        WHERE i.user.id = :userId AND i.type = 'SAVED'
+        WHERE i.user.id = :userId AND i.type = 'SAVE'
     """)
     List<Post> findSavedPostsByUserId(@Param("userId") Long userId);
+
+    List<Interaction> findByPostId(Long postId);
 }

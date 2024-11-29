@@ -23,7 +23,7 @@ public class PostController {
     public ResponseEntity<PostResponse> createPost(@ModelAttribute PostRequest postRequest) {
         Post post = postService.createPost(postRequest);
 
-        return ResponseEntity.ok(postService.getPostResponse(post));
+        return ResponseEntity.ok(postService.getPostResponse(post, post.getUser().getId()));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -38,19 +38,20 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {
+    public ResponseEntity<PostResponse> getPost(@PathVariable Long id, @RequestParam(required = false) Long userId) {
         Post post = postService.getPost(id);
-        return ResponseEntity.ok(postService.getPostResponse(post));
+        Long userInteractionId = userId == null ? post.getUser().getId() : userId;
+        return ResponseEntity.ok(postService.getPostResponse(post, userInteractionId));
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
+    public ResponseEntity<List<PostResponse>> getAllPosts(@RequestParam(required = false) Long userId) {
+        return ResponseEntity.ok(postService.getAllPosts(userId));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<PostResponse>> searchPosts(@RequestParam String query) {
-        return ResponseEntity.ok(postService.searchPosts(query));
+    public ResponseEntity<List<PostResponse>> searchPosts(@RequestParam String query, @RequestParam Long  userId) {
+        return ResponseEntity.ok(postService.searchPosts(query, userId));
     }
 
     @GetMapping("/user/{userId}")

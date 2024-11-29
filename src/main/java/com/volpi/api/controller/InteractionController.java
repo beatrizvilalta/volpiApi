@@ -15,23 +15,14 @@ public class InteractionController {
 
     @PostMapping()
     public void createNewInteraction(@RequestBody InteractionRequest interactionRequest) {
-        createInteraction(interactionRequest);
-    }
-
-    @PutMapping("/disable")
-    public void disable(@RequestBody InteractionRequest interactionRequest) {
-        interactionService.deleteInteraction(interactionRequest.userId(),
+        interactionService.createInteraction(interactionRequest.userId(),
                 interactionRequest.postId(),
                 InteractionType.valueOf(interactionRequest.interactionType()));
     }
 
-    @PutMapping("/enable")
-    public void enable(@RequestBody InteractionRequest interactionRequest) {
-        createInteraction(interactionRequest);
-    }
-
-    private void createInteraction(InteractionRequest interactionRequest) {
-        interactionService.createInteraction(interactionRequest.userId(),
+    @DeleteMapping()
+    public void disable(@RequestBody InteractionRequest interactionRequest) {
+        interactionService.deleteInteraction(interactionRequest.userId(),
                 interactionRequest.postId(),
                 InteractionType.valueOf(interactionRequest.interactionType()));
     }

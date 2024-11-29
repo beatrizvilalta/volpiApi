@@ -40,7 +40,7 @@ public class PostService {
         post.setFile(file);
         post.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
-        return getPostResponse(postRepository.save(post));
+        return getPostResponse(postRepository.save(post), post.getUser().getId());
     }
 
     public void deletePost(Long id) {
@@ -52,8 +52,8 @@ public class PostService {
         return postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
-    public PostResponse getPostResponse(Post post) {
-        InteractionDetails interactionDetailsInterface =  interactionService.getInteractionDetails(post.getUser().getId(),
+    public PostResponse getPostResponse(Post post, Long userInteractionId) {
+        InteractionDetails interactionDetails =  interactionService.getInteractionDetails(userInteractionId,
                 post.getId());
 
         return new PostResponse(post.getId(),
@@ -66,37 +66,40 @@ public class PostService {
                 post.getSchoolLevel().name(),
                 post.getGrade().name(),
                 post.getFile().getPreviewImageUrl(),
-                interactionDetailsInterface.isSupported(),
-                interactionDetailsInterface.isSaved(),
-                interactionDetailsInterface.supportCount(),
-                interactionDetailsInterface.saveCount());
+                interactionDetails.isSupported(),
+                interactionDetails.isSaved(),
+                interactionDetails.supportCount(),
+                interactionDetails.saveCount());
     }
 
-    public List<PostResponse> getAllPosts() {
+    public List<PostResponse> getAllPosts(Long userId) {
         return postRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
-                .map(this::getPostResponse)
+                .map((post) -> {
+                    var userInteractionId = userId == null ? post.getUser().getId() : userId;
+                    return getPostResponse(post, userInteractionId);
+                })
                 .toList();
     }
 
-    public List<PostResponse> searchPosts(String query) {
+    public List<PostResponse> searchPosts(String query, Long userId) {
         return postRepository.findByTitleContaining(query)
                 .stream()
-                .map(this::getPostResponse)
+                .map(post -> getPostResponse(post, userId))
                 .toList();
     }
 
     public List<PostResponse> getPostsByUser(Long userId) {
         return postRepository.findAllByUserId(userId)
                 .stream()
-                .map(this::getPostResponse)
+                .map(post -> getPostResponse(post, userId))
                 .toList();
     }
 
     public List<PostResponse> getSavedPosts(Long userId) {
         return interactionService.getSavedPosts(userId)
                 .stream()
-                .map(this::getPostResponse)
+                .map(post -> getPostResponse(post, userId))
                 .toList();
     }
 
