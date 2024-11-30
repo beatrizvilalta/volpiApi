@@ -4,7 +4,6 @@ import com.volpi.api.dto.PostRequest;
 import com.volpi.api.dto.PostResponse;
 import com.volpi.api.model.Post;
 import com.volpi.api.service.PostService;
-import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
