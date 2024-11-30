@@ -8,7 +8,6 @@ import com.volpi.api.model.User;
 import com.volpi.api.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -62,6 +61,7 @@ public class PostService {
 
     public void deletePost(Long id) {
         Post post = getPost(id);
+        fileService.deleteFile(post.getFile().getId());
         postRepository.delete(post);
     }
 

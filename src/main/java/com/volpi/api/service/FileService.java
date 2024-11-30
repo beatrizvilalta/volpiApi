@@ -118,6 +118,7 @@ public class FileService {
         File file = getFile(id);
 
         s3Service.deleteFile(file.getPreviewImageName());
+        s3Service.deleteFile(file.getFileName());
         fileRepository.delete(file);
     }
 }
