@@ -23,7 +23,7 @@ public class PostService {
     private final InteractionService interactionService;
 
     public Post createPost(PostRequest postRequest) {
-        File file = fileService.createFile(new FileRequest(postRequest.file(), postRequest.previewImage()));
+        File file = fileService.createFile(new FileRequest(postRequest.previewImage(), postRequest.file()));
         User user = authService.findById(postRequest.userId());
         Post post = new Post();
         post.postFromPostRequest(postRequest);
@@ -66,6 +66,7 @@ public class PostService {
                 post.getSchoolLevel().name(),
                 post.getGrade().name(),
                 post.getFile().getPreviewImageUrl(),
+                post.getFile().getFileUrl(),
                 interactionDetails.isSupported(),
                 interactionDetails.isSaved(),
                 interactionDetails.supportCount(),

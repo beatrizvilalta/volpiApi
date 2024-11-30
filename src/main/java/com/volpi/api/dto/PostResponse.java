@@ -13,6 +13,7 @@ public record PostResponse(
         String schoolLevel,
         String grade,
         String previewImageUrl,
+        String fileUrl,
         boolean isSupported,
         boolean isSaved,
         int supportCount,
