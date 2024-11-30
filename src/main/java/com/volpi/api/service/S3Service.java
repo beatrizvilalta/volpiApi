@@ -36,5 +36,13 @@ public class S3Service {
                         .build()
         );
     }
+
+    public void deleteFile(String fileName) {
+        s3Client.deleteObject(
+                software.amazon.awssdk.services.s3.model.DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(fileName)
+                        .build());
+    }
 }
 

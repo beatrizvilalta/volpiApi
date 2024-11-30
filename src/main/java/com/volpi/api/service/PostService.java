@@ -8,6 +8,7 @@ import com.volpi.api.model.User;
 import com.volpi.api.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -34,14 +35,29 @@ public class PostService {
     public PostResponse editPost(PostRequest postRequest, Long id) {
         Post post = getPost(id);
         if (postRequest.file() != null || postRequest.previewImage() != null) {
-            File file = fileService.updateFile(post.getFile().getId(), new FileRequest(postRequest.previewImage(), postRequest.file()));
-            post.setFile(file);
+            resolveFileEdition(postRequest, post);
         }
 
         post.postFromPostRequest(postRequest);
         post.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
         return getPostResponse(postRepository.save(post), post.getUser().getId());
+    }
+
+    private void resolveFileEdition(PostRequest postRequest, Post post) {
+        File file = new File();
+        if (postRequest.file() != null && postRequest.previewImage() != null) {
+            file = fileService.updateFile(post.getFile().getId(), new FileRequest(postRequest.previewImage(), postRequest.file()));
+        }
+
+        if (postRequest.file() != null) {
+            file = fileService.updateSingleFile(post.getFile().getId(), postRequest.file(), false);
+        }
+        if (postRequest.previewImage() != null) {
+            file = fileService.updateSingleFile(post.getFile().getId(), postRequest.previewImage(), true);
+        }
+
+        post.setFile(file);
     }
 
     public void deletePost(Long id) {

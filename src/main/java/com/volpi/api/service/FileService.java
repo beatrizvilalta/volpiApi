@@ -8,6 +8,7 @@ import com.volpi.api.model.File;
 import com.volpi.api.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 
@@ -18,6 +19,9 @@ public class FileService {
     private final FileRepository fileRepository;
     private final S3Service s3Service;
     private final String baseUrl = "https://volpi-files.s3.us-east-1.amazonaws.com/";
+
+    private record FileRecord(String fileName, String previewImageName) {
+    }
 
     public File createFile(FileRequest fileRequest) {
         try {
@@ -45,9 +49,6 @@ public class FileService {
         s3Service.uploadFile(fileName, fileStream);
         s3Service.uploadFile(previewImageName, previewImageStream);
         return new FileRecord(fileName, previewImageName);
-    }
-
-    private record FileRecord(String fileName, String previewImageName) {
     }
 
     public FileResponse createFileRequest(FileRequest fileRequest) {
@@ -89,5 +90,34 @@ public class FileService {
         } catch (Exception e) {
             throw new InternalError("File update failed: " + e.getMessage(), e);
         }
+    }
+
+    public File updateSingleFile(long id, MultipartFile fileRequest, boolean isPreviewImage) {
+        File file = getFile(id);
+        try {
+            InputStream fileStream = fileRequest.getInputStream();
+            String fileName = fileRequest.getOriginalFilename();
+            s3Service.uploadFile(fileName, fileStream);
+
+            if (isPreviewImage) {
+                file.setPreviewImageName(fileName);
+                file.setPreviewImageUrl(baseUrl + fileName);
+            } else {
+                file.setFileName(fileName);
+                file.setFileUrl(baseUrl + fileName);
+            }
+
+            fileRepository.save(file);
+            return file;
+        } catch (Exception e) {
+            throw new InternalError("File update failed: " + e.getMessage(), e);
+        }
+    }
+
+    public void deleteFile(long id) {
+        File file = getFile(id);
+
+        s3Service.deleteFile(file.getPreviewImageName());
+        fileRepository.delete(file);
     }
 }
