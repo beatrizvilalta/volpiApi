@@ -4,6 +4,7 @@ import com.volpi.api.dto.PostRequest;
 import com.volpi.api.dto.PostResponse;
 import com.volpi.api.model.Post;
 import com.volpi.api.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostResponse> createPost(@ModelAttribute PostRequest postRequest) {
+    public ResponseEntity<PostResponse> createPost(@ModelAttribute @Valid PostRequest postRequest) {
         Post post = postService.createPost(postRequest);
 
         return ResponseEntity.ok(postService.getPostResponse(post, post.getUser().getId()));

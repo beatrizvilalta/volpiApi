@@ -33,9 +33,12 @@ public class PostService {
 
     public PostResponse editPost(PostRequest postRequest, Long id) {
         Post post = getPost(id);
+        if (postRequest.file() != null || postRequest.previewImage() != null) {
+            File file = fileService.updateFile(post.getFile().getId(), new FileRequest(postRequest.previewImage(), postRequest.file()));
+            post.setFile(file);
+        }
+
         post.postFromPostRequest(postRequest);
-        File file = fileService.updateFile(post.getFile().getId(), new FileRequest(postRequest.previewImage(), postRequest.file()));
-        post.setFile(file);
         post.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
         return getPostResponse(postRepository.save(post), post.getUser().getId());

@@ -1,13 +1,14 @@
 package com.volpi.api.dto;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 public record PostRequest(
-        Long userId,
-        String title,
+        @NotNull Long userId,
+        @NotNull String title,
         String description,
-        String subject,
-        String schoolLevel,
+        @NotNull String subject,
+        @NotNull String schoolLevel,
         String grade,
         MultipartFile previewImage,
         MultipartFile file

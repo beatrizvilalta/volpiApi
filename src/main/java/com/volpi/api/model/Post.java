@@ -4,6 +4,7 @@ import com.volpi.api.dto.PostRequest;
 import com.volpi.api.model.enums.GradeEnum;
 import com.volpi.api.model.enums.SchoolLevelEnum;
 import com.volpi.api.model.enums.SubjectEnum;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
