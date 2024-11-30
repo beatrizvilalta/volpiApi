@@ -1,6 +1,7 @@
 package com.volpi.api.repository;
 
-import com.volpi.api.dto.InteractionDetailsInterface;
+import com.volpi.api.dto.InteractionControlInterface;
+import com.volpi.api.dto.InteractionCountInterface;
 import com.volpi.api.model.Interaction;
 import com.volpi.api.model.Post;
 import com.volpi.api.model.enums.InteractionType;
@@ -26,13 +27,20 @@ public interface InteractionRepository extends JpaRepository<Interaction, Long>{
                     WHEN COALESCE(SUM(CASE WHEN i.type = 'SUPPORT' AND i.user.id = :userId THEN 1 ELSE 0 END), 0) > 0
                     THEN TRUE
                     ELSE FALSE
-                END AS isSupported,
-                COALESCE(SUM(CASE WHEN i.type = 'SAVE' THEN 1 ELSE 0 END), 0) AS saveCount,
-                COALESCE(SUM(CASE WHEN i.type = 'SUPPORT' THEN 1 ELSE 0 END), 0) AS supportCount
+                END AS isSupported
             FROM Interaction i
             WHERE i.post.id = :postId
        """)
-    InteractionDetailsInterface findPostInteractionDetails(@Param("userId") Long userId, @Param("postId") Long postId);
+    InteractionControlInterface findInteractionControl(@Param("userId") Long userId, @Param("postId") Long postId);
+
+    @Query("""
+        SELECT
+            COALESCE(SUM(CASE WHEN i.type = 'SAVE' THEN 1 ELSE 0 END), 0) AS saveCount,
+            COALESCE(SUM(CASE WHEN i.type = 'SUPPORT' THEN 1 ELSE 0 END), 0) AS supportCount
+        FROM Interaction i
+        WHERE i.post.id = :postId
+    """)
+    InteractionCountInterface getInteractionCount(@Param("postId") Long postId);
 
     Optional<Interaction> findByUserIdAndPostIdAndType(Long userId, Long postId, InteractionType type);
 

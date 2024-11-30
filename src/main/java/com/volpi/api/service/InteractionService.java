@@ -1,7 +1,7 @@
 package com.volpi.api.service;
 
-import com.volpi.api.dto.InteractionDetails;
-import com.volpi.api.dto.InteractionDetailsInterface;
+import com.volpi.api.dto.InteractionControlInterface;
+import com.volpi.api.dto.InteractionCountInterface;
 import com.volpi.api.model.Interaction;
 import com.volpi.api.model.Post;
 import com.volpi.api.model.User;
@@ -57,9 +57,12 @@ public class InteractionService {
                 .orElseThrow(() -> new IllegalArgumentException("Interaction not found"));
     }
 
-    public InteractionDetails getInteractionDetails(Long userId, Long postId) {
-        InteractionDetailsInterface result = interactionRepository.findPostInteractionDetails(userId, postId);
-        return new InteractionDetails(result.getIsSaved(), result.getIsSupported(), result.getSaveCount(), result.getSupportCount());
+    public InteractionCountInterface getInteractionCount(Long postId) {
+        return interactionRepository.getInteractionCount(postId);
+    }
+
+    public InteractionControlInterface getInteractionControl(Long userId, Long postId) {
+        return interactionRepository.findInteractionControl(userId, postId);
     }
 
     public List<Post> getSavedPosts(Long userId) {

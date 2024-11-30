@@ -1,8 +1,6 @@
 package com.volpi.api.service;
 
-import com.volpi.api.dto.InteractionDetails;
-import com.volpi.api.dto.PostRequest;
-import com.volpi.api.dto.PostResponse;
+import com.volpi.api.dto.*;
 import com.volpi.api.dto.file.FileRequest;
 import com.volpi.api.model.File;
 import com.volpi.api.model.Post;
@@ -53,8 +51,17 @@ public class PostService {
     }
 
     public PostResponse getPostResponse(Post post, Long userInteractionId) {
-        InteractionDetails interactionDetails =  interactionService.getInteractionDetails(userInteractionId,
-                post.getId());
+
+        InteractionCountInterface interactionCount = interactionService.getInteractionCount(post.getId());
+        InteractionDetails interactionDetails = new InteractionDetails();
+        interactionDetails.setSaveCount(interactionCount.getSaveCount());
+        interactionDetails.setSupportCount(interactionCount.getSupportCount());
+
+        if (userInteractionId != null) {
+            InteractionControlInterface interactionControlInterface = interactionService.getInteractionControl(userInteractionId, post.getId());
+            interactionDetails.setIsSaved(interactionControlInterface.getIsSaved());
+            interactionDetails.setIsSupported(interactionControlInterface.getIsSupported());
+        }
 
         return new PostResponse(post.getId(),
                 post.getUser().getId(),
@@ -67,19 +74,16 @@ public class PostService {
                 post.getGrade().name(),
                 post.getFile().getPreviewImageUrl(),
                 post.getFile().getFileUrl(),
-                interactionDetails.isSupported(),
-                interactionDetails.isSaved(),
-                interactionDetails.supportCount(),
-                interactionDetails.saveCount());
+                interactionDetails.getIsSupported(),
+                interactionDetails.getIsSaved(),
+                interactionDetails.getSupportCount(),
+                interactionDetails.getSaveCount());
     }
 
     public List<PostResponse> getAllPosts(Long userId) {
         return postRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
-                .map((post) -> {
-                    var userInteractionId = userId == null ? post.getUser().getId() : userId;
-                    return getPostResponse(post, userInteractionId);
-                })
+                .map(post -> getPostResponse(post, userId))
                 .toList();
     }
 

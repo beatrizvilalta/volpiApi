@@ -40,8 +40,7 @@ public class PostController {
     @GetMapping("/{id}")
     public ResponseEntity<PostResponse> getPost(@PathVariable Long id, @RequestParam(required = false) Long userId) {
         Post post = postService.getPost(id);
-        Long userInteractionId = userId == null ? post.getUser().getId() : userId;
-        return ResponseEntity.ok(postService.getPostResponse(post, userInteractionId));
+        return ResponseEntity.ok(postService.getPostResponse(post, userId));
     }
 
     @GetMapping
